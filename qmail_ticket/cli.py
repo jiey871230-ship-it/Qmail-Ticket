@@ -33,14 +33,18 @@ def main():
 
     args = parse_args()
 
-    # 日期处理
-    start_s = args.start
-    end_s = args.end
+    # 交互式输入（未提供参数时提示）
+    source_kwargs = {}
+    if args.source == 'imap':
+        email_addr = args.email or input("  QQ邮箱: ").strip()
+        auth_code = args.code or input("  授权码: ").strip()
+        if not email_addr or not auth_code:
+            print("  错误: imap 源需要邮箱地址和授权码", file=sys.stderr)
+            sys.exit(1)
+        source_kwargs = {'email': email_addr, 'code': auth_code}
 
-    if args.source == 'foxmail' and not start_s:
-        start_s = input("  起始日期 (YYYY-MM-DD, 回车跳过): ").strip() or None
-    if args.source == 'foxmail' and not end_s:
-        end_s = input("  截止日期 (YYYY-MM-DD, 回车跳过): ").strip() or None
+    start_s = args.start or input("  起始日期 (YYYY-MM-DD, 回车跳过): ").strip() or None
+    end_s = args.end or input("  截止日期 (YYYY-MM-DD, 回车跳过): ").strip() or None
 
     start_date = parse_date_arg(start_s) if start_s else None
     end_date = parse_date_arg(end_s) if end_s else None
@@ -51,12 +55,6 @@ def main():
 
     # [1] 连接并搜索
     print(f"\n[1/4] 连接 {args.source}...")
-    source_kwargs = {}
-    if args.source == 'imap':
-        if not args.email or not args.code:
-            print("  错误: imap 源需要 --email 和 --code 参数", file=sys.stderr)
-            sys.exit(1)
-        source_kwargs = {'email': args.email, 'code': args.code}
 
     source = get_source(args.source, **source_kwargs)
     source.connect()

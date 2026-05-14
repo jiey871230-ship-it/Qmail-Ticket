@@ -17,11 +17,15 @@ pip install PyMuPDF Pillow
 
 ## 使用方法
 
+直接运行即可，未提供的参数会交互式提示输入：
+
 ### Foxmail 本地邮件（默认）
 
 ```bash
-python -m qmail_ticket --source foxmail
-python -m qmail_ticket --source foxmail --start 2026-01-01 --end 2026-12-31
+python -m qmail_ticket
+# 交互式提示：
+#   起始日期 (YYYY-MM-DD, 回车跳过): 2026-01-01
+#   截止日期 (YYYY-MM-DD, 回车跳过): 2026-12-31
 ```
 
 ### QQ邮箱 IMAP
@@ -29,8 +33,18 @@ python -m qmail_ticket --source foxmail --start 2026-01-01 --end 2026-12-31
 需要先在 QQ邮箱设置中生成授权码（非登录密码）。
 
 ```bash
-python -m qmail_ticket --source imap --email your@qq.com --code 授权码
-python -m qmail_ticket --source imap --email your@qq.com --code 授权码 --start 2026-01-01
+python -m qmail_ticket --source imap
+# 交互式提示：
+#   QQ邮箱: your@qq.com
+#   授权码: your-auth-code
+#   起始日期 (YYYY-MM-DD, 回车跳过):
+#   截止日期 (YYYY-MM-DD, 回车跳过):
+```
+
+也可以通过命令行参数一次性传入：
+
+```bash
+python -m qmail_ticket --source imap --email your@qq.com --code 授权码 --start 2026-01-01 --end 2026-12-31
 ```
 
 ### 参数说明
@@ -38,10 +52,10 @@ python -m qmail_ticket --source imap --email your@qq.com --code 授权码 --star
 | 参数 | 说明 |
 |------|------|
 | `--source` | 邮件源：`foxmail`（默认）或 `imap` |
-| `--email` | 邮箱地址（imap 源必需） |
-| `--code` | 授权码（imap 源必需） |
-| `--start` | 起始日期，格式 YYYY-MM-DD |
-| `--end` | 截止日期，格式 YYYY-MM-DD |
+| `--email` | 邮箱地址（不填则交互提示） |
+| `--code` | 授权码（不填则交互提示） |
+| `--start` | 起始日期，格式 YYYY-MM-DD（不填则交互提示） |
+| `--end` | 截止日期，格式 YYYY-MM-DD（不填则交互提示） |
 
 ## 输出文件
 
