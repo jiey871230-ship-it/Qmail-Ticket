@@ -56,13 +56,37 @@ def main():
         # 检查是否有保存的配置
         imap_config = get_imap_config()
         if imap_config:
-            print(f"\n  使用已保存的配置: {imap_config['email']}")
-            source_kwargs = {
-                'email': imap_config['email'],
-                'code': imap_config['code']
-            }
+            print(f"\n  已保存的配置: {imap_config['email']}")
+            print("  1. 使用已保存的配置")
+            print("  2. 输入新的配置")
+            choice = input("请选择 (1/2, 直接回车选择 1): ").strip()
+
+            if choice == '' or choice == '1':
+                print(f"  使用已保存的配置: {imap_config['email']}")
+                source_kwargs = {
+                    'email': imap_config['email'],
+                    'code': imap_config['code']
+                }
+            else:
+                # 提示用户输入新配置
+                print("\n  请输入新的登录信息：")
+                email_addr = input("  QQ邮箱: ").strip()
+                auth_code = input("  授权码: ").strip()
+
+                if not email_addr or not auth_code:
+                    print("  错误: imap 源需要邮箱地址和授权码", file=sys.stderr)
+                    sys.exit(1)
+
+                # 保存新配置
+                save_imap_config(email_addr, auth_code)
+                print("  登录信息已保存到 ~/.qmail-ticket/config.json")
+
+                source_kwargs = {
+                    'email': email_addr,
+                    'code': auth_code
+                }
         else:
-            # 提示用户输入
+            # 首次使用，提示用户输入
             print("\n  首次使用 IMAP，请输入登录信息：")
             email_addr = input("  QQ邮箱: ").strip()
             auth_code = input("  授权码: ").strip()
