@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "票据列表",
-  "usingComponents": {
-    "ticket-card": "/components/ticket-card/ticket-card"
-  }
+  "navigationBarTitleText": "票据列表"
 }

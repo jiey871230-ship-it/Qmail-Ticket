@@ -18,23 +18,31 @@
     </view>
 
     <view class="form-item">
-      <text class="label">起始日期（可选）</text>
+      <text class="label">起始日期</text>
       <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
-        <view class="picker">{{startDate || '不限'}}</view>
+        <view class="picker">{{startDate}}</view>
       </picker>
     </view>
 
     <view class="form-item">
-      <text class="label">截止日期（可选）</text>
+      <text class="label">截止日期</text>
       <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
-        <view class="picker">{{endDate || '不限'}}</view>
+        <view class="picker">{{endDate}}</view>
       </picker>
     </view>
 
     <button class="btn-primary" bindtap="onStartFetch"
             disabled="{{loading || !email || !code}}">
-      {{loading ? progress || '正在连接...' : '开始提取'}}
+      {{loading ? '正在提取...' : '开始提取'}}
     </button>
+
+    <!-- 进度条 -->
+    <view class="progress-wrap" wx:if="{{progress > 0}}">
+      <view class="progress-bar-bg">
+        <view class="progress-bar-fill" style="width: {{progress}}%"></view>
+      </view>
+      <text class="progress-text">{{progress}}%</text>
+    </view>
   </view>
 
   <view class="tips">
@@ -42,5 +50,9 @@
     <text class="tips-text">1. 授权码在QQ邮箱设置 → 账户 → POP3/IMAP 中生成</text>
     <text class="tips-text">2. 仅支持 12306 火车票和携程机票邮件</text>
     <text class="tips-text">3. 首次输入后会自动保存，无需重复输入</text>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">作者：杨杰  版本：1.0.0</text>
   </view>
 </view>

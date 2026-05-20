@@ -7,3 +7,13 @@ local_output/
 node_modules/
 miniprogram/miniprogram_npm/
 miniprogram/project.private.config.json
+
+# Cloud function bundled dependencies (use layer instead)
+cloudfunctions/*/PIL/
+cloudfunctions/*/fitz/
+cloudfunctions/*/pymupdf/
+cloudfunctions/*/pymupdf-*.dist-info/
+cloudfunctions/*/pillow.libs/
+cloudfunctions/*/bin/
+cloudfunctions/pymupdf-pillow-layer/python/
+cloudfunctions/pymupdf-pillow-layer/*.zip

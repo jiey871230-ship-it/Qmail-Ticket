@@ -1,4 +1,4 @@
-const { getTickets, db } = require('../../utils/cloud')
+const { getAllTickets } = require('../../utils/cloud')
 
 Page({
   data: {
@@ -8,33 +8,16 @@ Page({
     loading: true,
   },
 
-  onShow() {
-    this.loadTickets()
-  },
+  onShow() { this.loadTickets() },
 
   async loadTickets() {
     this.setData({ loading: true })
     try {
-      const { data: tasks } = await db.collection('tasks')
-        .where({ status: 'done' })
-        .orderBy('createTime', 'desc')
-        .limit(1)
-        .get()
-
-      if (!tasks.length) {
-        this.setData({ tickets: [], groupedTickets: [], loading: false })
-        return
-      }
-
-      const taskId = tasks[0]._id
-      const tickets = await getTickets(taskId)
-
+      const tickets = await getAllTickets()
       const totalAmount = tickets.reduce((sum, t) => sum + t.amount, 0).toFixed(2)
-      const grouped = this._groupByMonth(tickets)
-
       this.setData({
         tickets,
-        groupedTickets: grouped,
+        groupedTickets: this._groupByMonth(tickets),
         totalAmount,
         loading: false,
       })
@@ -49,14 +32,12 @@ Page({
     tickets.forEach(t => {
       const month = t.travelDate.substring(0, 7)
       if (!map[month]) {
-        map[month] = { month: `${month.substring(0,4)}年${month.substring(5,7)}月`, tickets: [] }
+        map[month] = { month: `${month.substring(0, 4)}年${month.substring(5, 7)}月`, tickets: [] }
       }
       map[month].tickets.push(t)
     })
     return Object.values(map).sort((a, b) => b.month.localeCompare(a.month))
   },
 
-  goExport() {
-    wx.switchTab({ url: '/pages/export/export' })
-  },
+  goExport() { wx.switchTab({ url: '/pages/export/export' }) },
 })

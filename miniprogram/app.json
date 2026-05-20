@@ -36,5 +36,7 @@
       }
     ]
   },
-  "usingComponents": {}
+  "usingComponents": {
+    "ticket-card": "/components/ticket-card/ticket-card"
+  }
 }

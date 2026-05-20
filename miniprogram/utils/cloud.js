@@ -1,96 +1,78 @@
 const db = wx.cloud.database()
 
-function fetchTickets({ email, code, startDate, endDate, taskId }) {
-  return wx.cloud.callFunction({
+/**
+ * 提取票据（只返回元数据）
+ */
+async function fetchTickets({ email, code, startDate, endDate }) {
+  const { result } = await wx.cloud.callFunction({
     name: 'fetchTickets',
-    data: { email, code, startDate, endDate, taskId },
+    data: { email, code, startDate, endDate },
   })
-}
 
-function sendEmail({ email, code, toAddress, fileIds }) {
-  return wx.cloud.callFunction({
-    name: 'sendEmail',
-    data: { email, code, toAddress, fileIds },
-  })
-}
+  if (result.error) {
+    throw new Error(result.error)
+  }
 
-async function createTask() {
-  const res = await db.collection('tasks').add({
-    data: {
-      status: 'connecting',
-      progress: '0/0',
-      ticketCount: 0,
-      totalAmount: 0,
-      fileIds: {},
-      createTime: db.serverDate(),
-    },
-  })
-  return res._id
-}
+  if (!result.tickets || result.tickets.length === 0) {
+    return { tickets: [], summary: { count: 0, totalAmount: 0 } }
+  }
 
-function watchTask(taskId, callback) {
-  const timer = setInterval(async () => {
+  // 清空旧数据后保存
+  await clearAllTickets()
+
+  const tickets = result.tickets.map(t => ({
+    ...t,
+    createTime: db.serverDate(),
+  }))
+
+  for (const t of tickets) {
     try {
-      const { data } = await db.collection('tasks').doc(taskId).get()
-      callback(data)
-      if (data.status === 'done' || data.status === 'error') {
-        clearInterval(timer)
-      }
+      await db.collection('tickets').add({ data: t })
     } catch (e) {
-      console.error('轮询失败:', e)
+      console.error('保存票据失败:', e)
     }
-  }, 2000)
-  return timer
+  }
+
+  return { tickets, summary: result.summary }
 }
 
-async function getTickets(taskId) {
+/**
+ * 发送邮件（云函数重新解析并发送）
+ */
+async function sendEmail({ email, code, toAddress, startDate, endDate }) {
+  console.log('Calling sendEmail cloud function...')
+  const res = await wx.cloud.callFunction({
+    name: 'sendEmail',
+    data: { email, code, toAddress, startDate, endDate },
+  })
+  console.log('sendEmail result:', JSON.stringify(res.result))
+  return res
+}
+
+async function getAllTickets() {
   const { data } = await db.collection('tickets')
-    .where({ _taskId: taskId })
-    .orderBy('travelDate', 'desc')
+    .orderBy('travelDate', 'asc')
     .get()
   return data
 }
 
-async function getTask(taskId) {
-  const { data } = await db.collection('tasks').doc(taskId).get()
-  return data
-}
-
-async function downloadFile(fileID) {
-  const res = await wx.cloud.downloadFile({ fileID })
-  return res.tempFilePath
-}
-
-async function saveImageToAlbum(tempFilePath) {
-  return new Promise((resolve, reject) => {
-    wx.saveImageToPhotosAlbum({
-      filePath: tempFilePath,
-      success: resolve,
-      fail: reject,
-    })
-  })
-}
-
-async function openDocument(tempFilePath, fileType) {
-  return new Promise((resolve, reject) => {
-    wx.openDocument({
-      filePath: tempFilePath,
-      fileType,
-      success: resolve,
-      fail: reject,
-    })
-  })
+async function clearAllTickets() {
+  let total = 0
+  while (true) {
+    const { data } = await db.collection('tickets').limit(100).get()
+    if (data.length === 0) break
+    for (const t of data) {
+      await db.collection('tickets').doc(t._id).remove()
+    }
+    total += data.length
+  }
+  return total
 }
 
 module.exports = {
   fetchTickets,
   sendEmail,
-  createTask,
-  watchTask,
-  getTickets,
-  getTask,
-  downloadFile,
-  saveImageToAlbum,
-  openDocument,
+  getAllTickets,
+  clearAllTickets,
   db,
 }

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "cloud1-d0glxhyrh8e01628b",
+  "functionRoot": "cloudfunctions",
+  "functions": [
+    {
+      "name": "fetchTickets",
+      "timeout": 120,
+      "memorySize": 512,
+      "runtime": "Python3.9",
+      "handler": "main.main",
+      "layers": [
+        {
+          "name": "pymupdf-pillow-layer_cloud1-d0glxhyrh8e01628b",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "sendEmail",
+      "timeout": 180,
+      "memorySize": 512,
+      "runtime": "Python3.9",
+      "handler": "main.main",
+      "layers": [
+        {
+          "name": "pymupdf-pillow-layer_cloud1-d0glxhyrh8e01628b",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}
