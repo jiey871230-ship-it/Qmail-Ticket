@@ -143,3 +143,43 @@ class ExcelWriter(OutputWriter):
 - [PyMuPDF](https://pymupdf.readthedocs.io/) (fitz) — PDF 解析和转 JPG
 - [Pillow](https://pillow.readthedocs.io/) — 图片处理（print.pdf 排版）
 - Python 标准库：imaplib、email、csv、zipfile、argparse
+
+---
+
+## 微信小程序版
+
+基于微信云开发的移动端版本，功能与 CLI 版一致。
+
+### 项目结构
+
+```
+miniprogram/                  # 小程序前端
+├── app.js / app.json / app.wxss
+├── pages/
+│   ├── index/                # 首页（提取配置）
+│   ├── tickets/              # 票据列表
+│   └── export/               # 导出页
+├── components/ticket-card/   # 票据卡片组件
+└── utils/cloud.js            # 云函数封装
+
+cloudfunctions/               # 云函数（Python）
+├── pymupdf-pillow-layer/     # PyMuPDF + Pillow 公共层
+├── fetchTickets/             # 邮件提取 + 解析
+└── sendEmail/                # ZIP 打包 + SMTP 发送
+```
+
+### 部署步骤
+
+1. 在微信开发者工具中创建云开发项目
+2. 运行 `cloudfunctions/pymupdf-pillow-layer/build.sh` 构建公共层（需 Linux 环境）
+3. 在云开发控制台上传 `pymupdf-pillow-layer.zip` 作为公共层
+4. 上传 `fetchTickets` 和 `sendEmail` 云函数
+5. 在 `miniprogram/app.js` 中替换 `env: 'your-env-id'` 为实际云环境 ID
+6. 在云开发控制台创建 `tasks` 和 `tickets` 两个数据库集合
+7. 编译运行小程序
+
+### 注意事项
+
+- `fetchTickets` 函数超时设为 120 秒，邮件量大时可能需要申请延长
+- 公共层需在 Linux x86_64 环境构建（使用 Docker 或 WSL）
+- 免费额度：云函数 40 万次/月、云存储 5GB、云数据库 2GB
