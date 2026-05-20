@@ -3,10 +3,10 @@ import email.policy
 import re
 from email import message_from_bytes
 
-from ..models import RawEmail, Ticket
-from ..utils.email_utils import extract_12306_pdf
-from ..utils.pdf_utils import pdf_to_text
-from .base import TicketParser
+from models import RawEmail, Ticket
+from utils.email_utils import extract_12306_pdf
+from utils.pdf_utils import pdf_to_text
+from parsers.base import TicketParser
 
 
 class Train12306Parser(TicketParser):

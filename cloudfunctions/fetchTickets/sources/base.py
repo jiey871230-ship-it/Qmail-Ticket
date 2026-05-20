@@ -1,7 +1,7 @@
 """邮件源抽象基类"""
 from abc import ABC, abstractmethod
 
-from ..models import RawEmail
+from models import RawEmail
 
 
 class MailSource(ABC):

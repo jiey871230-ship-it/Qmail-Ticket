@@ -1,7 +1,7 @@
 """解析器模块"""
-from .train_12306 import Train12306Parser
-from .ctrip import CtripParser
-from ..models import RawEmail
+from parsers.train_12306 import Train12306Parser
+from parsers.ctrip import CtripParser
+from models import RawEmail
 
 PARSERS = [Train12306Parser(), CtripParser()]
 

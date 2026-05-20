@@ -1,5 +1,5 @@
 """邮件源模块"""
-from .base import MailSource
-from .imap import ImapSource
+from sources.base import MailSource
+from sources.imap import ImapSource
 
 __all__ = ['MailSource', 'ImapSource']

@@ -4,10 +4,10 @@ import quopri
 import re
 from email import message_from_bytes
 
-from ..models import RawEmail, Ticket
-from ..utils.email_utils import extract_ctrip_pdfs
-from ..utils.pdf_utils import pdf_to_text
-from .base import TicketParser
+from models import RawEmail, Ticket
+from utils.email_utils import extract_ctrip_pdfs
+from utils.pdf_utils import pdf_to_text
+from parsers.base import TicketParser
 
 
 class CtripParser(TicketParser):

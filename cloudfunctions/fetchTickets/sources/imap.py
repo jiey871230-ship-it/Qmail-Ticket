@@ -4,8 +4,8 @@ import imaplib
 import re
 from datetime import timedelta
 
-from .base import MailSource
-from ..models import RawEmail
+from sources.base import MailSource
+from models import RawEmail
 
 SUBJECT_12306 = "网上购票系统"
 SUBJECT_CTRIP = "携程"
