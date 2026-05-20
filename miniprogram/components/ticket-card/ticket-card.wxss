@@ -1,0 +1,61 @@
+.ticket-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.ticket-date {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.ticket-type {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.type-train {
+  color: #1890ff;
+}
+
+.type-plane {
+  color: #722ed1;
+}
+
+.ticket-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-route {
+  flex: 1;
+}
+
+.route-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.ticket-vehicle {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.ticket-amount {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ff4d4f;
+}

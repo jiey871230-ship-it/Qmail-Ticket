@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "timeout": 120,
+  "memorySize": 512,
+  "layers": [
+    {
+      "name": "pymupdf-pillow-layer",
+      "version": 1
+    }
+  ]
+}

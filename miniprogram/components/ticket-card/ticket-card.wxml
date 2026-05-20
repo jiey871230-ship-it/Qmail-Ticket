@@ -1,0 +1,15 @@
+<view class="ticket-card">
+  <view class="ticket-header">
+    <text class="ticket-date">{{ticket.travelDate}}</text>
+    <text class="ticket-type {{ticket.ticketType === '火车' ? 'type-train' : 'type-plane'}}">
+      {{ticket.ticketType === '火车' ? '🚄' : '✈️'}} {{ticket.carrier}}
+    </text>
+  </view>
+  <view class="ticket-body">
+    <view class="ticket-route">
+      <text class="route-text">{{ticket.route}}</text>
+      <text class="ticket-vehicle">{{ticket.vehicle}}</text>
+    </view>
+    <text class="ticket-amount">¥{{ticket.amount}}</text>
+  </view>
+</view>
