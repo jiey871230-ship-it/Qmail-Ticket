@@ -13,6 +13,19 @@ from parsers import get_parser
 from models import Ticket
 
 
+def _ticket_to_dict(t):
+    """Ticket dataclass → camelCase dict"""
+    return {
+        'travelDate': t.travel_date,
+        'carrier': t.carrier,
+        'route': t.route,
+        'amount': t.amount,
+        'ticketType': t.ticket_type,
+        'vehicle': t.vehicle,
+        'item': t.item,
+    }
+
+
 def main(event, context):
     """云函数入口"""
     email = event['email']
@@ -63,7 +76,7 @@ def main(event, context):
                 pdf_id = _upload_to_cloud(pdf_bytes, f"tickets/{task_id}/{pdf_name}")
 
                 for t in tickets:
-                    ticket_dict = asdict(t)
+                    ticket_dict = _ticket_to_dict(t)
                     ticket_dict['jpgFileId'] = jpg_id
                     ticket_dict['pdfFileId'] = pdf_id
                     all_tickets.append(ticket_dict)

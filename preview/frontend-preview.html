@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>Qmail-Ticket 前端预览</title>
+<style>
+:root {
+  --primary-color: #1890ff;
+  --text-color: #333;
+  --text-secondary: #666;
+  --bg-color: #f5f5f5;
+  --card-bg: #fff;
+  --border-color: #eee;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #e8e8e8;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.phone-frame {
+  width: 375px;
+  min-height: 667px;
+  background: var(--bg-color);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  position: relative;
+}
+.status-bar {
+  height: 44px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #333;
+  font-weight: 600;
+}
+.page { display: none; padding: 15px; padding-bottom: 70px; }
+.page.active { display: block; }
+
+/* Tab Bar */
+.tab-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: #fff;
+  display: flex;
+  border-top: 1px solid #eee;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  color: #999;
+  font-size: 10px;
+  transition: color 0.2s;
+}
+.tab-item.active { color: var(--primary-color); }
+.tab-icon { font-size: 22px; }
+
+/* Common */
+.container { }
+.header { text-align: center; padding: 30px 0 20px; }
+.title { font-size: 24px; font-weight: 700; color: var(--primary-color); }
+.subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+.form {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+.form-item { margin-bottom: 15px; }
+.form-item:last-of-type { margin-bottom: 0; }
+.label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+.input {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--primary-color); }
+.picker {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.tips {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 15px;
+}
+.tips-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
+.tips-text { font-size: 12px; color: var(--text-secondary); display: block; line-height: 1.8; }
+
+/* Tickets page */
+.summary {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.summary-text { font-size: 14px; color: var(--text-secondary); }
+.summary-amount { font-size: 22px; font-weight: 700; color: #ff4d4f; }
+.summary-count { font-size: 12px; color: #999; margin-left: auto; }
+.month-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 8px; margin-top: 10px; }
+.month-group:first-child .month-title { margin-top: 0; }
+.ticket-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ticket-date { font-size: 13px; color: #999; }
+.ticket-type { font-size: 14px; font-weight: 500; }
+.type-train { color: #1890ff; }
+.type-plane { color: #722ed1; }
+.ticket-body { display: flex; justify-content: space-between; align-items: center; }
+.ticket-route { flex: 1; }
+.route-text { font-size: 16px; font-weight: 600; color: #333; display: block; margin-bottom: 2px; }
+.ticket-vehicle { font-size: 12px; color: #999; }
+.ticket-amount { font-size: 18px; font-weight: 700; color: #ff4d4f; }
+.export-btn { margin-top: 20px; }
+
+/* Export page */
+.btn-download-all {
+  margin-bottom: 20px;
+  background: #52c41a;
+  color: #fff;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+.section {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+.section-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; display: block; }
+.email-form { display: flex; gap: 8px; align-items: center; }
+.email-form .input { flex: 1; padding: 8px 10px; font-size: 14px; }
+.btn-send {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.jpg-scroll { display: flex; gap: 8px; padding: 4px 0; margin-bottom: 10px; overflow-x: auto; }
+.jpg-thumb {
+  width: 80px;
+  height: 60px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #999;
+}
+.btn-secondary {
+  background: #f0f0f0;
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+}
+.file-card { display: flex; justify-content: space-between; align-items: center; }
+.file-info { display: flex; align-items: center; gap: 8px; }
+.file-icon { font-size: 20px; }
+.file-name { font-size: 14px; display: block; }
+.file-meta { font-size: 12px; color: #999; display: block; margin-top: 2px; }
+.btn-download {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Progress animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.loading { animation: pulse 1.5s infinite; }
+
+/* Page switcher tabs at top */
+.page-tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.page-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.page-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px 0; }
+.empty-text { font-size: 16px; color: var(--text-secondary); display: block; }
+.empty-hint { font-size: 13px; color: #999; display: block; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="status-bar">9:41</div>
+
+  <!-- Page tabs for switching -->
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="showPage(0, this)">首页</div>
+    <div class="page-tab" onclick="showPage(1, this)">票据</div>
+    <div class="page-tab" onclick="showPage(2, this)">导出</div>
+  </div>
+
+  <!-- Page 1: Index (Email Config) -->
+  <div class="page active" id="page-index">
+    <div class="header">
+      <div class="title">Qmail-Ticket</div>
+      <div class="subtitle">火车票 · 机票 提取工具</div>
+    </div>
+
+    <div class="form">
+      <div class="form-item">
+        <span class="label">QQ邮箱</span>
+        <input class="input" type="text" placeholder="your@qq.com" value="demo@qq.com">
+      </div>
+      <div class="form-item">
+        <span class="label">授权码</span>
+        <input class="input" type="password" placeholder="邮箱授权码" value="abcd1234efgh">
+      </div>
+      <div class="form-item">
+        <span class="label">起始日期（可选）</span>
+        <input class="input" type="date" value="2026-01-01">
+      </div>
+      <div class="form-item">
+        <span class="label">截止日期（可选）</span>
+        <input class="input" type="date" value="2026-05-19">
+      </div>
+      <button class="btn-primary" onclick="showProgress()">开始提取</button>
+      <button class="btn-primary loading" id="progress-btn" style="display:none;background:#faad14">
+        正在解析 3/5 ...
+      </button>
+    </div>
+
+    <div class="tips">
+      <span class="tips-title">使用说明</span>
+      <span class="tips-text">1. 授权码在QQ邮箱设置 → 账户 → POP3/IMAP 中生成</span>
+      <span class="tips-text">2. 仅支持 12306 火车票和携程机票邮件</span>
+      <span class="tips-text">3. 首次输入后会自动保存，无需重复输入</span>
+    </div>
+  </div>
+
+  <!-- Page 2: Tickets -->
+  <div class="page" id="page-tickets">
+    <div class="summary">
+      <span class="summary-text">合计: </span>
+      <span class="summary-amount">¥1,726.00</span>
+      <span class="summary-count">共 5 张</span>
+    </div>
+
+    <div class="month-group">
+      <span class="month-title">2026年05月</span>
+      <div class="ticket-card">
+        <div class="ticket-header">
+          <span class="ticket-date">2026-05-20</span>
+          <span class="ticket-type type-train">🚄 G8612</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-route">
+            <span class="route-text">成都东-重庆西</span>
+            <span class="ticket-vehicle">二等座</span>
+          </div>
+          <span class="ticket-amount">¥263.00</span>
+        </div>
+      </div>
+      <div class="ticket-card">
+        <div class="ticket-header">
+          <span class="ticket-date">2026-05-18</span>
+          <span class="ticket-type type-plane">✈️ SC1234</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-route">
+            <span class="route-text">成都-北京</span>
+            <span class="ticket-vehicle">飞机</span>
+          </div>
+          <span class="ticket-amount">¥1,200.00</span>
+        </div>
+      </div>
+      <div class="ticket-card">
+        <div class="ticket-header">
+          <span class="ticket-date">2026-05-15</span>
+          <span class="ticket-type type-train">🚄 C6276</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-route">
+            <span class="route-text">成都东-乐山</span>
+            <span class="ticket-vehicle">二等座</span>
+          </div>
+          <span class="ticket-amount">¥54.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="month-group">
+      <span class="month-title">2026年04月</span>
+      <div class="ticket-card">
+        <div class="ticket-header">
+          <span class="ticket-date">2026-04-28</span>
+          <span class="ticket-type type-train">🚄 D1851</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-route">
+            <span class="route-text">重庆西-成都东</span>
+            <span class="ticket-vehicle">一等座</span>
+          </div>
+          <span class="ticket-amount">¥154.00</span>
+        </div>
+      </div>
+      <div class="ticket-card">
+        <div class="ticket-header">
+          <span class="ticket-date">2026-04-10</span>
+          <span class="ticket-type type-plane">✈️ 3U8999</span>
+        </div>
+        <div class="ticket-body">
+          <div class="ticket-route">
+            <span class="route-text">成都-上海</span>
+            <span class="ticket-vehicle">飞机</span>
+          </div>
+          <span class="ticket-amount">¥55.00</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary export-btn" onclick="showPage(2, document.querySelectorAll('.page-tab')[2])">
+      导出文件 →
+    </button>
+  </div>
+
+  <!-- Page 3: Export -->
+  <div class="page" id="page-export">
+    <button class="btn-download-all">⬇ 全部下载到手机</button>
+
+    <div class="section">
+      <span class="section-title">发送到邮箱</span>
+      <div class="email-form">
+        <input class="input" type="text" placeholder="收件地址" value="friend@example.com">
+        <button class="btn-send">发送</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="section-title">票据图片 (5张)</span>
+      <div class="jpg-scroll">
+        <div class="jpg-thumb">G8612</div>
+        <div class="jpg-thumb">SC1234</div>
+        <div class="jpg-thumb">C6276</div>
+        <div class="jpg-thumb">D1851</div>
+        <div class="jpg-thumb">3U8999</div>
+      </div>
+      <button class="btn-secondary">保存到相册</button>
+    </div>
+
+    <div class="section">
+      <span class="section-title">汇总表</span>
+      <div class="file-card">
+        <div class="file-info">
+          <span class="file-icon">📊</span>
+          <div>
+            <span class="file-name">ticket_summary.csv</span>
+            <span class="file-meta">5条记录</span>
+          </div>
+        </div>
+        <button class="btn-download">下载</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="section-title">合并打印</span>
+      <div class="file-card">
+        <div class="file-info">
+          <span class="file-icon">📄</span>
+          <div>
+            <span class="file-name">print.pdf</span>
+            <span class="file-meta">火车票8张/页 · 机票4张/页</span>
+          </div>
+        </div>
+        <button class="btn-download">下载</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="showPage(0, document.querySelectorAll('.page-tab')[0])">
+      <span class="tab-icon">🏠</span>
+      <span>首页</span>
+    </div>
+    <div class="tab-item" onclick="showPage(1, document.querySelectorAll('.page-tab')[1])">
+      <span class="tab-icon">🎫</span>
+      <span>票据</span>
+    </div>
+    <div class="tab-item" onclick="showPage(2, document.querySelectorAll('.page-tab')[2])">
+      <span class="tab-icon">📦</span>
+      <span>导出</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPage(idx, tabEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page')[idx].classList.add('active');
+  document.querySelectorAll('.page-tab')[idx].classList.add('active');
+  document.querySelectorAll('.tab-item')[idx].classList.add('active');
+}
+
+function showProgress() {
+  const btn = document.querySelector('.btn-primary');
+  const progBtn = document.getElementById('progress-btn');
+  btn.style.display = 'none';
+  progBtn.style.display = 'block';
+  let i = 0;
+  const steps = ['正在连接...', '正在解析 1/5 ...', '正在解析 2/5 ...', '正在解析 3/5 ...', '正在解析 4/5 ...', '正在解析 5/5 ...', '正在生成文件...', '完成!'];
+  const interval = setInterval(() => {
+    i++;
+    if (i < steps.length) {
+      progBtn.textContent = steps[i];
+    } else {
+      clearInterval(interval);
+      progBtn.style.display = 'none';
+      btn.style.display = 'block';
+      alert('提取完成! 请切换到"票据"页查看结果');
+    }
+  }, 1500);
+}
+</script>
+</body>
+</html>

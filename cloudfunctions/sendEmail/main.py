@@ -45,7 +45,7 @@ def main(event, context):
     msg = MIMEMultipart()
     msg['From'] = email_addr
     msg['To'] = to_address
-    msg['Subject'] = 'Qmail-Ticket 票据提取结果'
+    msg['Subject'] = '车票管家 - 票据提取结果'
 
     body = MIMEText('请查收附件中的票据文件。', 'plain', 'utf-8')
     msg.attach(body)

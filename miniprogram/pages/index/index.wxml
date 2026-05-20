@@ -1,6 +1,6 @@
 <view class="container">
   <view class="header">
-    <text class="title">Qmail-Ticket</text>
+    <text class="title">车票管家</text>
     <text class="subtitle">火车票 · 机票 提取工具</text>
   </view>
 

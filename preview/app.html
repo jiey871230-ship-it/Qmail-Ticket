@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0, user-scalable=no">
+<title>Qmail-Ticket</title>
+<style>
+:root {
+  --ios-blue: #007AFF;
+  --ios-red: #FF3B30;
+  --ios-green: #34C759;
+  --ios-orange: #FF9500;
+  --ios-purple: #AF52DE;
+  --ios-gray: #8E8E93;
+  --ios-gray2: #AEAEB2;
+  --ios-gray3: #C7C7CC;
+  --ios-gray4: #D1D1D6;
+  --ios-gray5: #E5E5EA;
+  --ios-gray6: #F2F2F7;
+  --ios-bg: #F2F2F7;
+  --ios-card: #FFFFFF;
+  --ios-separator: rgba(60,60,67,0.12);
+  --ios-label: #3C3C43;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background: #c8c8cc;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+.phone-frame {
+  width: 375px;
+  height: 700px;
+  background: var(--ios-bg);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Status Bar ── */
+.status-bar {
+  height: 54px;
+  background: var(--ios-bg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+  flex-shrink: 0;
+}
+
+/* ── Nav Bar ── */
+.nav-bar {
+  height: 44px;
+  background: var(--ios-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.nav-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #000;
+}
+.nav-large-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #000;
+  padding: 0 16px 8px;
+  background: var(--ios-bg);
+  flex-shrink: 0;
+}
+
+/* ── Pages ── */
+.page {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
+}
+.page.active { display: flex; flex-direction: column; }
+
+/* ── Tab Bar ── */
+.tab-bar {
+  height: 83px;
+  background: rgba(249,249,249,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  border-top: 0.5px solid var(--ios-separator);
+  padding-bottom: 20px;
+  flex-shrink: 0;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  color: var(--ios-gray);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.tab-item.active { color: var(--ios-blue); }
+.tab-icon { font-size: 24px; line-height: 1; }
+
+/* ── iOS Grouped Section ── */
+.ios-section {
+  margin: 20px 16px 0;
+}
+.ios-section:first-child { margin-top: 12px; }
+.ios-section-header {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ios-gray);
+  text-transform: uppercase;
+  padding: 0 16px 6px;
+}
+.ios-section-footer {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ios-gray);
+  padding: 6px 16px 0;
+}
+.ios-card {
+  background: var(--ios-card);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ── iOS Form ── */
+.ios-row {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  min-height: 44px;
+  position: relative;
+}
+.ios-row + .ios-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 0.5px;
+  background: var(--ios-separator);
+}
+.ios-row-label {
+  font-size: 17px;
+  color: #000;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.ios-row-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 17px;
+  font-family: inherit;
+  color: #000;
+  background: transparent;
+  text-align: right;
+}
+.ios-row-input::placeholder { color: var(--ios-gray3); }
+.ios-row-input[type="password"]::placeholder { color: var(--ios-gray3); }
+
+/* ── iOS Button ── */
+.ios-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 20px 16px 0;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.ios-btn:active { opacity: 0.7; transform: scale(0.98); }
+.ios-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ios-btn-blue { background: var(--ios-blue); color: #fff; }
+.ios-btn-green { background: var(--ios-green); color: #fff; }
+.ios-btn-gray { background: var(--ios-gray5); color: var(--ios-blue); }
+.ios-btn-red { background: var(--ios-red); color: #fff; }
+
+/* ── Summary Card ── */
+.summary-card {
+  margin: 12px 16px 0;
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+}
+.summary-row { display: flex; align-items: baseline; gap: 6px; }
+.summary-label { font-size: 15px; opacity: 0.8; }
+.summary-amount { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+.summary-count { font-size: 15px; opacity: 0.8; margin-left: auto; }
+
+/* ── Month Header ── */
+.month-header {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  padding: 20px 16px 8px;
+}
+
+/* ── Ticket Row ── */
+.ticket-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--ios-card);
+  position: relative;
+}
+.ticket-row + .ticket-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 0;
+  height: 0.5px;
+  background: var(--ios-separator);
+}
+.ticket-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.ticket-icon-train { background: rgba(0,122,255,0.1); }
+.ticket-icon-plane { background: rgba(175,82,222,0.1); }
+.ticket-info { flex: 1; min-width: 0; }
+.ticket-route { font-size: 17px; font-weight: 500; color: #000; }
+.ticket-meta { font-size: 13px; color: var(--ios-gray); margin-top: 2px; }
+.ticket-right { text-align: right; margin-left: 8px; }
+.ticket-amount { font-size: 17px; font-weight: 600; color: var(--ios-red); }
+.ticket-date-sm { font-size: 13px; color: var(--ios-gray); margin-top: 1px; }
+
+/* ── Export Section ── */
+.file-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--ios-card);
+  position: relative;
+}
+.file-row + .file-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 56px;
+  right: 0;
+  height: 0.5px;
+  background: var(--ios-separator);
+}
+.file-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.file-icon-csv { background: rgba(52,199,89,0.1); }
+.file-icon-pdf { background: rgba(255,59,48,0.1); }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 17px; color: #000; }
+.file-meta { font-size: 13px; color: var(--ios-gray); margin-top: 1px; }
+.file-action {
+  color: var(--ios-blue);
+  font-size: 17px;
+  cursor: pointer;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.file-action:active { opacity: 0.5; }
+
+/* ── JPG Scroll ── */
+.jpg-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--ios-card);
+}
+.jpg-scroll::-webkit-scrollbar { display: none; }
+.jpg-thumb {
+  width: 80px;
+  height: 56px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: var(--ios-gray5);
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* ── Email Input Row ── */
+.email-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 10px;
+  background: var(--ios-card);
+}
+.email-row .ios-row-input {
+  flex: 1;
+  border: 1px solid var(--ios-gray4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  background: var(--ios-bg);
+}
+.email-send-btn {
+  color: var(--ios-blue);
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 8px 4px;
+}
+.email-send-btn:disabled { color: var(--ios-gray3); }
+
+/* ── Messages ── */
+.msg {
+  margin: 10px 16px 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.msg-success { background: rgba(52,199,89,0.12); color: #1B7D30; }
+.msg-error { background: rgba(255,59,48,0.12); color: #D70015; }
+.msg-info { background: rgba(0,122,255,0.1); color: #0040DD; }
+
+/* ── Empty State ── */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+}
+.empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+.empty-text { font-size: 17px; color: var(--ios-gray); }
+.empty-hint { font-size: 15px; color: var(--ios-gray2); margin-top: 4px; }
+
+/* ── Loading ── */
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.loading { animation: pulse 1.2s infinite; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="status-bar">9:41</div>
+
+  <!-- Page 1: Index -->
+  <div class="page active" id="page-index">
+    <div class="nav-large-title">车票管家</div>
+
+    <div class="ios-section">
+      <div class="ios-section-header">邮箱配置</div>
+      <div class="ios-card">
+        <div class="ios-row">
+          <span class="ios-row-label">QQ邮箱</span>
+          <input class="ios-row-input" id="inp-email" type="text" placeholder="your@qq.com">
+        </div>
+        <div class="ios-row">
+          <span class="ios-row-label">授权码</span>
+          <input class="ios-row-input" id="inp-code" type="password" placeholder="邮箱授权码">
+        </div>
+      </div>
+    </div>
+
+    <div class="ios-section">
+      <div class="ios-section-header">时间范围（可选）</div>
+      <div class="ios-card">
+        <div class="ios-row">
+          <span class="ios-row-label">起始</span>
+          <input class="ios-row-input" id="inp-start" type="date">
+        </div>
+        <div class="ios-row">
+          <span class="ios-row-label">截止</span>
+          <input class="ios-row-input" id="inp-end" type="date">
+        </div>
+      </div>
+    </div>
+
+    <button class="ios-btn ios-btn-blue" id="btn-fetch" onclick="startFetch()">开始提取</button>
+    <div id="fetch-msg"></div>
+
+    <div class="ios-section">
+      <div class="ios-section-header">使用说明</div>
+      <div class="ios-card" style="padding:12px 16px;">
+        <div style="font-size:15px;color:var(--ios-gray);line-height:1.7">
+          1. 授权码在 QQ邮箱设置 &rarr; 账户 &rarr; POP3/IMAP 中生成<br>
+          2. 仅支持 12306 火车票和携程机票邮件<br>
+          3. 首次输入后会自动保存，无需重复输入
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 2: Tickets -->
+  <div class="page" id="page-tickets">
+    <div class="nav-bar"><span class="nav-title">票据</span></div>
+    <div id="tickets-content">
+      <div class="empty-state">
+        <div class="empty-icon">🎫</div>
+        <div class="empty-text">暂无票据数据</div>
+        <div class="empty-hint">请先在首页提取票据</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 3: Export -->
+  <div class="page" id="page-export">
+    <div class="nav-bar"><span class="nav-title">导出</span></div>
+    <div id="export-content">
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <div class="empty-text">暂无可导出文件</div>
+        <div class="empty-hint">请先在首页提取票据</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="showPage(0)">
+      <span class="tab-icon">🏠</span><span>首页</span>
+    </div>
+    <div class="tab-item" onclick="showPage(1)">
+      <span class="tab-icon">🎫</span><span>票据</span>
+    </div>
+    <div class="tab-item" onclick="showPage(2)">
+      <span class="tab-icon">📦</span><span>导出</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+
+function showPage(idx) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page')[idx].classList.add('active');
+  document.querySelectorAll('.tab-item')[idx].classList.add('active');
+}
+
+let state = { tickets: [], fileIds: { jpgs: [], csv: '', pdf: '' }, taskId: '' };
+
+function loadConfig() {
+  const cfg = JSON.parse(localStorage.getItem('imap_config') || '{}');
+  if (cfg.email) document.getElementById('inp-email').value = cfg.email;
+  if (cfg.code) document.getElementById('inp-code').value = cfg.code;
+}
+loadConfig();
+
+async function startFetch() {
+  const email = document.getElementById('inp-email').value.trim();
+  const code = document.getElementById('inp-code').value.trim();
+  const startDate = document.getElementById('inp-start').value;
+  const endDate = document.getElementById('inp-end').value;
+
+  if (!email || !code) { showMsg('fetch-msg', '请输入邮箱和授权码', 'error'); return; }
+  localStorage.setItem('imap_config', JSON.stringify({ email, code }));
+
+  const btn = document.getElementById('btn-fetch');
+  btn.disabled = true;
+  btn.textContent = '正在连接...';
+  showMsg('fetch-msg', '正在连接邮箱服务器...', 'info');
+
+  try {
+    const res = await fetch(`${API}/api/fetchTickets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code, startDate, endDate }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '提取失败');
+
+    state.tickets = data.tickets || [];
+    state.fileIds = data.fileIds || { jpgs: [], csv: '', pdf: '' };
+    state.taskId = data.taskId;
+
+    if (state.tickets.length === 0) {
+      showMsg('fetch-msg', '未找到匹配的票据邮件', 'info');
+    } else {
+      showMsg('fetch-msg', `提取完成，共 ${state.tickets.length} 张票据`, 'success');
+      renderTickets();
+      renderExport();
+    }
+  } catch (e) {
+    showMsg('fetch-msg', `错误: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '开始提取';
+  }
+}
+
+function renderTickets() {
+  const el = document.getElementById('tickets-content');
+  if (!state.tickets.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🎫</div><div class="empty-text">暂无票据数据</div></div>';
+    return;
+  }
+
+  const groups = {};
+  for (const t of state.tickets) {
+    const m = t.travelDate ? t.travelDate.substring(0, 7) : '未知';
+    if (!groups[m]) groups[m] = [];
+    groups[m].push(t);
+  }
+  const total = state.tickets.reduce((s, t) => s + (t.amount || 0), 0);
+  const months = Object.keys(groups).sort();
+
+  let html = `<div class="summary-card">
+    <div class="summary-row">
+      <span class="summary-label">合计</span>
+      <span class="summary-amount">&yen;${total.toFixed(2)}</span>
+      <span class="summary-count">${state.tickets.length} 张</span>
+    </div>
+  </div>`;
+
+  for (const month of months) {
+    groups[month].sort((a, b) => (a.travelDate || '').localeCompare(b.travelDate || ''));
+    const [y, m] = month.split('-');
+    html += `<div class="month-header">${y}年${parseInt(m)}月</div><div class="ios-card" style="margin:0 16px;border-radius:10px;overflow:hidden;">`;
+    for (const t of groups[month]) {
+      const isTrain = t.ticketType === '火车';
+      const iconClass = isTrain ? 'ticket-icon-train' : 'ticket-icon-plane';
+      const icon = isTrain ? '🚄' : '✈️';
+      html += `<div class="ticket-row">
+        <div class="ticket-icon-wrap ${iconClass}">${icon}</div>
+        <div class="ticket-info">
+          <div class="ticket-route">${t.route || ''}</div>
+          <div class="ticket-meta">${t.carrier || ''} · ${t.vehicle || ''}</div>
+        </div>
+        <div class="ticket-right">
+          <div class="ticket-amount">&yen;${(t.amount || 0).toFixed(2)}</div>
+          <div class="ticket-date-sm">${t.travelDate || ''}</div>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '<button class="ios-btn ios-btn-blue" style="margin-top:24px" onclick="showPage(2)">查看导出文件</button>';
+  el.innerHTML = html;
+}
+
+function renderExport() {
+  const el = document.getElementById('export-content');
+  const { jpgs, csv, pdf } = state.fileIds;
+  if (!jpgs.length && !csv && !pdf) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">暂无可导出文件</div></div>';
+    return;
+  }
+
+  let html = '<button class="ios-btn ios-btn-green" id="btn-download-all" onclick="downloadAll()">全部下载到手机</button>';
+
+  html += `<div class="ios-section" style="margin-top:20px">
+    <div class="ios-section-header">发送到邮箱</div>
+    <div class="ios-card">
+      <div class="email-row">
+        <input class="ios-row-input" id="inp-toaddr" type="text" placeholder="收件地址">
+        <button class="email-send-btn" id="btn-send" onclick="sendEmail()">发送</button>
+      </div>
+    </div>
+    <div id="send-msg"></div>
+  </div>`;
+
+  if (jpgs.length) {
+    html += `<div class="ios-section">
+      <div class="ios-section-header">票据图片（${jpgs.length}张）</div>
+      <div class="ios-card">
+        <div class="jpg-scroll">`;
+    for (const fid of jpgs) {
+      html += `<img class="jpg-thumb" src="${API}/output/${fid}" onclick="window.open('${API}/output/${fid}')">`;
+    }
+    html += `</div></div></div>`;
+  }
+
+  if (csv || pdf) {
+    html += '<div class="ios-section"><div class="ios-section-header">文件</div><div class="ios-card">';
+    if (csv) {
+      html += `<div class="file-row">
+        <div class="file-icon-wrap file-icon-csv">📊</div>
+        <div class="file-info"><div class="file-name">ticket_summary.csv</div><div class="file-meta">${state.tickets.length} 条记录</div></div>
+        <span class="file-action" onclick="window.open('${API}/output/${csv}')">下载</span>
+      </div>`;
+    }
+    if (pdf) {
+      html += `<div class="file-row">
+        <div class="file-icon-wrap file-icon-pdf">📄</div>
+        <div class="file-info"><div class="file-name">print.pdf</div><div class="file-meta">合并排版 PDF</div></div>
+        <span class="file-action" onclick="window.open('${API}/output/${pdf}')">下载</span>
+      </div>`;
+    }
+    html += '</div></div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function downloadAll() {
+  const { jpgs, csv, pdf } = state.fileIds;
+  const all = [...jpgs, csv, pdf].filter(Boolean);
+  for (const fid of all) {
+    const a = document.createElement('a');
+    a.href = `${API}/output/${fid}`;
+    a.download = fid.split('/').pop();
+    a.click();
+  }
+}
+
+async function sendEmail() {
+  const email = document.getElementById('inp-email').value.trim();
+  const code = document.getElementById('inp-code').value.trim();
+  const toAddress = document.getElementById('inp-toaddr').value.trim();
+  if (!toAddress) { showMsg('send-msg', '请输入收件地址', 'error'); return; }
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+  btn.textContent = '发送中...';
+  try {
+    const res = await fetch(`${API}/api/sendEmail`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code, toAddress, fileIds: state.fileIds }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '发送失败');
+    showMsg('send-msg', `已发送到 ${data.to}`, 'success');
+  } catch (e) {
+    showMsg('send-msg', `错误: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '发送';
+  }
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="msg msg-${type}">${text}</div>`;
+  if (type === 'success') setTimeout(() => { el.innerHTML = ''; }, 5000);
+}
+</script>
+</body>
+</html>

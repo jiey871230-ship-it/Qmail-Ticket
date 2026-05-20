@@ -5,14 +5,16 @@
     "pages/export/export"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#1890ff",
-    "navigationBarTitleText": "Qmail-Ticket",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f5f5"
+    "navigationBarBackgroundColor": "#F2F2F7",
+    "navigationBarTitleText": "车票管家",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F2F2F7"
   },
   "tabBar": {
-    "color": "#999",
-    "selectedColor": "#1890ff",
+    "color": "#8E8E93",
+    "selectedColor": "#007AFF",
+    "backgroundColor": "#F9F9F9",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -22,7 +24,7 @@
       },
       {
         "pagePath": "pages/tickets/tickets",
-        "text": "票据列表",
+        "text": "票据",
         "iconPath": "images/ticket.png",
         "selectedIconPath": "images/ticket-active.png"
       },

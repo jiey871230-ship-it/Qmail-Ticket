@@ -3,5 +3,7 @@ __pycache__/
 .DS_Store
 *.bak
 output/
+local_output/
 node_modules/
 miniprogram/miniprogram_npm/
+miniprogram/project.private.config.json
