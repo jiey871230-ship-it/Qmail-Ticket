@@ -1,0 +1,38 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/tickets/tickets",
+    "pages/export/export"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1890ff",
+    "navigationBarTitleText": "Qmail-Ticket",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#1890ff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/tickets/tickets",
+        "text": "票据列表",
+        "iconPath": "images/ticket.png",
+        "selectedIconPath": "images/ticket-active.png"
+      },
+      {
+        "pagePath": "pages/export/export",
+        "text": "导出",
+        "iconPath": "images/export.png",
+        "selectedIconPath": "images/export-active.png"
+      }
+    ]
+  },
+  "usingComponents": {}
+}
