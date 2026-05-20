@@ -1,0 +1,72 @@
+.header {
+  text-align: center;
+  padding: 60rpx 0 40rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--primary-color);
+  display: block;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 8rpx;
+}
+
+.form {
+  background-color: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.input {
+  border: 2rpx solid var(--border-color);
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+}
+
+.picker {
+  border: 2rpx solid var(--border-color);
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: var(--text-color);
+}
+
+.tips {
+  background-color: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 30rpx;
+}
+
+.tips-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.tips-text {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  display: block;
+  line-height: 1.8;
+}

@@ -1,0 +1,108 @@
+.btn-download-all {
+  margin-bottom: 40rpx;
+  background-color: #52c41a;
+}
+
+.section {
+  background-color: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.email-form {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.email-form .input {
+  flex: 1;
+  border: 2rpx solid var(--border-color);
+  border-radius: 8rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+}
+
+.btn-send {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 16rpx 32rpx;
+  font-size: 28rpx;
+  white-space: nowrap;
+}
+
+.jpg-scroll {
+  margin-bottom: 20rpx;
+}
+
+.jpg-list {
+  display: flex;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.jpg-thumb {
+  width: 160rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  background-color: #f0f0f0;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: var(--text-color);
+  border: none;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+}
+
+.file-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.file-icon {
+  font-size: 40rpx;
+}
+
+.file-name {
+  font-size: 28rpx;
+  color: var(--text-color);
+  display: block;
+}
+
+.file-meta {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.btn-download {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 12rpx 24rpx;
+  font-size: 26rpx;
+}

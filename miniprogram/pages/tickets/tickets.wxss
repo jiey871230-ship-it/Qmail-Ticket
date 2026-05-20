@@ -1,0 +1,61 @@
+.summary {
+  background-color: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.summary-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.summary-amount {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ff4d4f;
+}
+
+.summary-count {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: auto;
+}
+
+.empty {
+  text-align: center;
+  padding: 120rpx 0;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+  display: block;
+  margin-top: 16rpx;
+}
+
+.month-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 16rpx;
+  margin-top: 20rpx;
+}
+
+.month-group:first-child .month-title {
+  margin-top: 0;
+}
+
+.export-btn {
+  margin-top: 40rpx;
+}

@@ -1,0 +1,66 @@
+<view class="container">
+  <!-- 全部下载 -->
+  <button class="btn-primary btn-download-all" bindtap="downloadAll"
+          disabled="{{downloading}}">
+    {{downloading ? downloadProgress || '正在下载...' : '⬇ 全部下载到手机'}}
+  </button>
+
+  <!-- 发送到邮箱 -->
+  <view class="section">
+    <text class="section-title">发送到邮箱</text>
+    <view class="email-form">
+      <input class="input" type="text" placeholder="收件地址"
+             value="{{toAddress}}" bindinput="onToAddressInput" />
+      <button class="btn-send" bindtap="sendEmail"
+              disabled="{{sending || !toAddress}}">
+        {{sending ? '发送中...' : '发送'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 票据图片 -->
+  <view class="section" wx:if="{{fileIds.jpgs.length}}">
+    <text class="section-title">票据图片 ({{fileIds.jpgs.length}}张)</text>
+    <scroll-view scroll-x class="jpg-scroll">
+      <view class="jpg-list">
+        <image wx:for="{{jpgPreviews}}" wx:key="index"
+               class="jpg-thumb" src="{{item}}" mode="aspectFill"
+               bindtap="previewJpg" data-index="{{index}}" />
+      </view>
+    </scroll-view>
+    <button class="btn-secondary" bindtap="saveAllJpgs"
+            disabled="{{savingJpgs}}">
+      {{savingJpgs ? jpgProgress || '保存中...' : '保存到相册'}}
+    </button>
+  </view>
+
+  <!-- CSV 汇总表 -->
+  <view class="section" wx:if="{{fileIds.csv}}">
+    <text class="section-title">汇总表</text>
+    <view class="file-card">
+      <view class="file-info">
+        <text class="file-icon">📊</text>
+        <view class="file-detail">
+          <text class="file-name">ticket_summary.csv</text>
+          <text class="file-meta">{{ticketCount}}条记录</text>
+        </view>
+      </view>
+      <button class="btn-download" bindtap="downloadCsv">下载</button>
+    </view>
+  </view>
+
+  <!-- 合并打印 PDF -->
+  <view class="section" wx:if="{{fileIds.pdf}}">
+    <text class="section-title">合并打印</text>
+    <view class="file-card">
+      <view class="file-info">
+        <text class="file-icon">📄</text>
+        <view class="file-detail">
+          <text class="file-name">print.pdf</text>
+          <text class="file-meta">火车票8张/页 · 机票4张/页</text>
+        </view>
+      </view>
+      <button class="btn-download" bindtap="downloadPdf">下载</button>
+    </view>
+  </view>
+</view>

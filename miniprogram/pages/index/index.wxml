@@ -1,0 +1,46 @@
+<view class="container">
+  <view class="header">
+    <text class="title">Qmail-Ticket</text>
+    <text class="subtitle">火车票 · 机票 提取工具</text>
+  </view>
+
+  <view class="form">
+    <view class="form-item">
+      <text class="label">QQ邮箱</text>
+      <input class="input" type="text" placeholder="your@qq.com"
+             value="{{email}}" bindinput="onEmailInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">授权码</text>
+      <input class="input" type="text" password placeholder="邮箱授权码"
+             value="{{code}}" bindinput="onCodeInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">起始日期（可选）</text>
+      <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+        <view class="picker">{{startDate || '不限'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">截止日期（可选）</text>
+      <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+        <view class="picker">{{endDate || '不限'}}</view>
+      </picker>
+    </view>
+
+    <button class="btn-primary" bindtap="onStartFetch"
+            disabled="{{loading || !email || !code}}">
+      {{loading ? progress || '正在连接...' : '开始提取'}}
+    </button>
+  </view>
+
+  <view class="tips">
+    <text class="tips-title">使用说明</text>
+    <text class="tips-text">1. 授权码在QQ邮箱设置 → 账户 → POP3/IMAP 中生成</text>
+    <text class="tips-text">2. 仅支持 12306 火车票和携程机票邮件</text>
+    <text class="tips-text">3. 首次输入后会自动保存，无需重复输入</text>
+  </view>
+</view>

@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="summary" wx:if="{{tickets.length}}">
+    <text class="summary-text">合计: </text>
+    <text class="summary-amount">¥{{totalAmount}}</text>
+    <text class="summary-count">共 {{tickets.length}} 张</text>
+  </view>
+
+  <view class="empty" wx:if="{{!tickets.length && !loading}}">
+    <text class="empty-text">暂无票据数据</text>
+    <text class="empty-hint">请先在首页提取票据</text>
+  </view>
+
+  <view class="month-group" wx:for="{{groupedTickets}}" wx:key="month">
+    <text class="month-title">{{item.month}}</text>
+    <ticket-card
+      wx:for="{{item.tickets}}"
+      wx:for-item="ticket"
+      wx:key="travelDate"
+      ticket="{{ticket}}"
+    />
+  </view>
+
+  <button class="btn-primary export-btn" wx:if="{{tickets.length}}"
+          bindtap="goExport">
+    导出文件 →
+  </button>
+</view>
