@@ -109,7 +109,7 @@ def _parse_date(s):
     return datetime.strptime(s.strip(), "%Y-%m-%d")
 
 
-def _pdf_to_jpg_bytes(pdf_bytes, dpi=150):
+def _pdf_to_jpg_bytes(pdf_bytes, dpi=200):
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     pix = doc[0].get_pixmap(dpi=dpi)
     jpg_bytes = pix.tobytes("jpeg")
@@ -131,7 +131,7 @@ def _generate_csv(tickets):
 
 def _generate_print_pdf(jpgs, tickets):
     """合并 JPG 为排版 PDF"""
-    A4_DPI = 150
+    A4_DPI = 200
     PAGE_W = int(210 / 25.4 * A4_DPI)
     PAGE_H = int(297 / 25.4 * A4_DPI)
     MARGIN = 60
@@ -154,7 +154,8 @@ def _generate_print_pdf(jpgs, tickets):
             batch = ticket_list[i:i + per_page]
 
             for j, t in enumerate(batch):
-                jpg_name = t.travel_date + '-' + t.route.replace('/', '-') + '.jpg'
+                suffix = "-机票" if t.ticket_type == '飞机' else ""
+                jpg_name = t.travel_date + '-' + t.route.replace('/', '-') + suffix + '.jpg'
                 jpg_data = jpg_map.get(jpg_name)
                 if not jpg_data:
                     continue
