@@ -36,7 +36,7 @@ Page({
       }
       map[month].tickets.push(t)
     })
-    return Object.values(map).sort((a, b) => b.month.localeCompare(a.month))
+    return Object.values(map).sort((a, b) => a.month.localeCompare(b.month))
   },
 
   goExport() { wx.switchTab({ url: '/pages/export/export' }) },
