@@ -75,7 +75,7 @@ class PrintPdfWriter(OutputWriter):
             return pages
 
         train_pages = make_pages(trains, cols=2, rows=4)
-        flight_pages = make_pages(flights, cols=2, rows=2)
+        flight_pages = make_pages(flights, cols=1, rows=3)
         all_pages = train_pages + flight_pages
 
         if not all_pages:

@@ -15,7 +15,7 @@
     <ticket-card
       wx:for="{{item.tickets}}"
       wx:for-item="ticket"
-      wx:key="travelDate"
+      wx:key="_id"
       ticket="{{ticket}}"
     />
   </view>

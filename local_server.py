@@ -308,42 +308,71 @@ def _generate_print_pdf_file(jpg_file_ids, out_path, task_dir):
     MARGIN = 60
     SPACING = 24
 
-    # 加载所有 JPG 图片
-    images = []
+    # 按类型分组：机票行程单 vs 火车票
+    train_images = []
+    flight_images = []
     for fid in jpg_file_ids:
         fpath = os.path.join(OUTPUT_DIR, fid)
         if os.path.exists(fpath):
-            images.append(Image.open(fpath))
-
-    if not images:
-        return
-
-    # 简单排版：2列4行
-    cols, rows = 2, 4
-    per_page = cols * rows
-    cell_w = (PAGE_W - 2 * MARGIN - (cols - 1) * SPACING) / cols
-    cell_h = (PAGE_H - 2 * MARGIN - (rows - 1) * SPACING) / rows
+            img = Image.open(fpath)
+            if '机票' in fid:
+                flight_images.append(img)
+            else:
+                train_images.append(img)
 
     pages = []
-    for i in range(0, len(images), per_page):
-        page = Image.new('RGB', (PAGE_W, PAGE_H), 'white')
-        batch = images[i:i + per_page]
-        for j, img in enumerate(batch):
-            img_ratio = img.width / img.height
-            cell_ratio = cell_w / cell_h
-            if img_ratio > cell_ratio:
-                new_w = cell_w
-                new_h = new_w / img_ratio
-            else:
-                new_h = cell_h
-                new_w = new_h * img_ratio
-            img_resized = img.resize((int(new_w), int(new_h)), Image.LANCZOS)
-            col = j % cols
-            row = j // cols
-            x = MARGIN + col * (cell_w + SPACING) + (cell_w - new_w) / 2
-            y = MARGIN + row * (cell_h + SPACING) + (cell_h - new_h) / 2
-            page.paste(img_resized, (int(x), int(y)))
-        pages.append(page)
+
+    # 火车票排版：2列4行
+    if train_images:
+        cols, rows = 2, 4
+        per_page = cols * rows
+        cell_w = (PAGE_W - 2 * MARGIN - (cols - 1) * SPACING) / cols
+        cell_h = (PAGE_H - 2 * MARGIN - (rows - 1) * SPACING) / rows
+
+        for i in range(0, len(train_images), per_page):
+            page = Image.new('RGB', (PAGE_W, PAGE_H), 'white')
+            batch = train_images[i:i + per_page]
+            for j, img in enumerate(batch):
+                img_ratio = img.width / img.height
+                cell_ratio = cell_w / cell_h
+                if img_ratio > cell_ratio:
+                    new_w = cell_w
+                    new_h = new_w / img_ratio
+                else:
+                    new_h = cell_h
+                    new_w = new_h * img_ratio
+                img_resized = img.resize((int(new_w), int(new_h)), Image.LANCZOS)
+                col = j % cols
+                row = j // cols
+                x = MARGIN + col * (cell_w + SPACING) + (cell_w - new_w) / 2
+                y = MARGIN + row * (cell_h + SPACING) + (cell_h - new_h) / 2
+                page.paste(img_resized, (int(x), int(y)))
+            pages.append(page)
+
+    # 机票行程单排版：1列3行，横跨整行宽度
+    if flight_images:
+        cols_f, rows_f = 1, 3
+        per_page_f = cols_f * rows_f
+        cell_w_f = PAGE_W - 2 * MARGIN
+        cell_h_f = (PAGE_H - 2 * MARGIN - (rows_f - 1) * SPACING) / rows_f
+
+        for i in range(0, len(flight_images), per_page_f):
+            page = Image.new('RGB', (PAGE_W, PAGE_H), 'white')
+            batch = flight_images[i:i + per_page_f]
+            for j, img in enumerate(batch):
+                img_ratio = img.width / img.height
+                cell_ratio = cell_w_f / cell_h_f
+                if img_ratio > cell_ratio:
+                    new_w = cell_w_f
+                    new_h = new_w / img_ratio
+                else:
+                    new_h = cell_h_f
+                    new_w = new_h * img_ratio
+                img_resized = img.resize((int(new_w), int(new_h)), Image.LANCZOS)
+                x = MARGIN + (cell_w_f - new_w) / 2
+                y = MARGIN + j * (cell_h_f + SPACING) + (cell_h_f - new_h) / 2
+                page.paste(img_resized, (int(x), int(y)))
+            pages.append(page)
 
     if pages:
         for img in pages:

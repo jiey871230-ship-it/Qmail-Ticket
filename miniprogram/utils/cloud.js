@@ -1,5 +1,8 @@
 const db = wx.cloud.database()
 
+// 内存缓存
+let _ticketCache = null
+
 /**
  * 提取票据（只返回元数据）
  */
@@ -14,49 +17,40 @@ async function fetchTickets({ email, code, startDate, endDate }) {
   }
 
   if (!result.tickets || result.tickets.length === 0) {
+    _ticketCache = []
     return { tickets: [], summary: { count: 0, totalAmount: 0 } }
   }
 
-  // 清空旧数据后保存
-  await clearAllTickets()
+  _ticketCache = result.tickets
 
-  const tickets = result.tickets.map(t => ({
-    ...t,
-    createTime: db.serverDate(),
-  }))
-
-  for (const t of tickets) {
-    try {
-      await db.collection('tickets').add({ data: t })
-    } catch (e) {
-      console.error('保存票据失败:', e)
-    }
-  }
-
-  return { tickets, summary: result.summary }
+  return { tickets: result.tickets, summary: result.summary }
 }
 
 /**
  * 发送邮件（云函数重新解析并发送）
  */
 async function sendEmail({ email, code, toAddress, startDate, endDate }) {
-  console.log('Calling sendEmail cloud function...')
   const res = await wx.cloud.callFunction({
     name: 'sendEmail',
     data: { email, code, toAddress, startDate, endDate },
   })
-  console.log('sendEmail result:', JSON.stringify(res.result))
   return res
 }
 
 async function getAllTickets() {
+  if (_ticketCache) {
+    return [..._ticketCache].sort((a, b) => a.travelDate.localeCompare(b.travelDate))
+  }
+  // 无缓存时从数据库读（历史数据兜底）
   const { data } = await db.collection('tickets')
     .orderBy('travelDate', 'asc')
+    .limit(100)
     .get()
   return data
 }
 
 async function clearAllTickets() {
+  _ticketCache = null
   let total = 0
   while (true) {
     const { data } = await db.collection('tickets').limit(100).get()

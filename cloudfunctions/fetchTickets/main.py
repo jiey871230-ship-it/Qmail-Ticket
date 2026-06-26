@@ -36,22 +36,37 @@ def main(event, context):
         raw_emails = source.search(start_date, end_date)
         source.disconnect()
 
+        print(f'[fetchTickets] 匹配邮件: {len(raw_emails)} 封')
+
         if not raw_emails:
             return {'tickets': [], 'summary': {'count': 0, 'totalAmount': 0}}
 
         all_tickets = []
+        parse_errors = []
         for raw in raw_emails:
             parser = get_parser(raw)
             if not parser:
+                print(f'[fetchTickets] 无解析器: {raw.subject[:40]}')
                 continue
-            results = parser.parse(raw)
+            try:
+                results = parser.parse(raw)
+            except Exception as e:
+                parse_errors.append(f'{raw.subject[:30]}: {e}')
+                print(f'[fetchTickets] 解析异常: {raw.subject[:40]} -> {e}')
+                continue
             if not results:
+                print(f'[fetchTickets] 解析为空: {raw.subject[:40]}')
                 continue
             for pdf_bytes, pdf_name, tickets in results:
+                print(f'[fetchTickets] {pdf_name}: {len(tickets)} 张')
                 for t in tickets:
                     all_tickets.append(_ticket_to_dict(t))
 
         total_amount = sum(t['amount'] for t in all_tickets)
+
+        print(f'[fetchTickets] 总计: {len(all_tickets)} 张, {total_amount} 元')
+        if parse_errors:
+            print(f'[fetchTickets] 解析错误: {parse_errors}')
 
         return {
             'tickets': all_tickets,
@@ -62,6 +77,7 @@ def main(event, context):
         }
 
     except Exception as e:
+        print(f'[fetchTickets] 致命错误: {e}')
         return {'error': str(e), 'tickets': [], 'summary': {'count': 0, 'totalAmount': 0}}
 
 

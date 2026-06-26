@@ -4,7 +4,7 @@
 
 ## 功能
 
-- **12306 火车票**：自动识别发站/到站、车次、乘车日期、座次、票价
+- **12306 火车票**：自动识别发站/到站（基于 PDF span 坐标定位）、车次、乘车日期、座次、票价
 - **携程机票**：自动识别出发/到达城市、航班号、日期、票价；支持 PDF 文本解析和 HTML 回退
 - **两种邮件源**：Foxmail 本地邮件、QQ邮箱 IMAP（可扩展 Gmail/Outlook）
 - **输出**：JPG 图片（200 DPI）、CSV 汇总表、合并排版 print.pdf
@@ -66,7 +66,7 @@ python -m qmail_ticket --source imap --email your@qq.com --code 授权码 --star
 | `{日期}-{出发}-{到达}.jpg` | 火车票 JPG 图片 |
 | `{日期}-{出发}-{到达}-机票.jpg` | 机票 JPG 图片 |
 | `ticket_summary.csv` | CSV 汇总表 |
-| `print.pdf` | 合并排版 PDF（火车票每页 8 张，机票每页 4 张） |
+| `print.pdf` | 合并排版 PDF（火车票每页 8 张，机票单独分页每页 3 张） |
 
 ## 项目结构
 

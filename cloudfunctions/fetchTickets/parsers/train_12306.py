@@ -47,15 +47,19 @@ def _parse_12306_text(text: str, pdf_bytes: bytes | None = None) -> list:
 
     from_station, to_station = '', ''
 
-    # 方法1: PDF 块级拼音 x 坐标定位
-    if pdf_bytes and len(stations_cn) >= 2:
-        from_station, to_station = _match_by_pinyin_blocks(pdf_bytes, stations_cn)
+    # 方法1: PDF span 坐标定位（最可靠，通过"站"字左侧中文定位发站/到站）
+    if pdf_bytes:
+        from_station, to_station = _match_by_span_positions(pdf_bytes)
 
     # 方法2: 纯文本拼音行定位
     if not from_station and len(stations_cn) >= 2:
         from_station, to_station = _match_by_pinyin_lines(lines, stations_cn)
 
-    # 方法3: 纯文本顺序回退
+    # 方法3: PDF 块级拼音 x 坐标定位
+    if not from_station and pdf_bytes and len(stations_cn) >= 2:
+        from_station, to_station = _match_by_pinyin_blocks(pdf_bytes, stations_cn)
+
+    # 方法4: 纯文本顺序回退
     if not from_station and len(stations_cn) >= 2:
         from_station, to_station = stations_cn[0], stations_cn[1]
 
@@ -97,6 +101,52 @@ def _parse_12306_text(text: str, pdf_bytes: bytes | None = None) -> list:
         ))
 
     return tickets
+
+
+def _match_by_span_positions(pdf_bytes: bytes) -> tuple:
+    """通过 PDF span 坐标定位发站和到站。
+
+    12306 票面布局：发站在左，到站在右。找到所有"站"字 span，
+    匹配其左侧同行的中文站名，按 x 坐标排序即可区分发站/到站。
+    """
+    try:
+        import fitz
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        d = doc[0].get_text("dict")
+        doc.close()
+
+        all_spans = []
+        for block in d["blocks"]:
+            if block["type"] != 0:
+                continue
+            for line in block["lines"]:
+                for span in line["spans"]:
+                    text = span["text"].strip()
+                    if text:
+                        x, y = span["origin"]
+                        all_spans.append((x, y, text))
+
+        station_spans = []
+        for x, y, text in all_spans:
+            if text != "站":
+                continue
+            best = None
+            best_dx = 999.0
+            for x2, y2, text2 in all_spans:
+                if abs(y2 - y) < 3 and x2 < x and re.match(r'^[一-鿿]+$', text2) and len(text2) >= 2:
+                    dx = x - x2
+                    if dx < best_dx:
+                        best_dx = dx
+                        best = (x2, text2)
+            if best and best not in station_spans:
+                station_spans.append(best)
+
+        station_spans.sort(key=lambda s: s[0])
+        if len(station_spans) >= 2:
+            return station_spans[0][1] + "站", station_spans[-1][1] + "站"
+        return '', ''
+    except Exception:
+        return '', ''
 
 
 def _match_by_pinyin_blocks(pdf_bytes: bytes, stations_cn: list) -> tuple:
