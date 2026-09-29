@@ -24,34 +24,34 @@ class CtripParser(TicketParser):
 
         results = []
         text_results = []
-        img_pdfs = []
+        img_pdfs = []  # 存储 (原始索引, pdf_data)
 
-        for pdf_data in pdf_list:
+        for i, pdf_data in enumerate(pdf_list):
             text = pdf_to_text(pdf_data)
             if text.strip():
                 tickets = _parse_ctrip_pdf_text(text)
                 if tickets:
                     text_results.append((pdf_data, tickets))
                 else:
-                    img_pdfs.append(pdf_data)
+                    img_pdfs.append((i, pdf_data))
             else:
-                img_pdfs.append(pdf_data)
+                img_pdfs.append((i, pdf_data))
 
-        if text_results:
-            for pdf_data, tickets in text_results:
-                for t in tickets:
-                    safe_date = t.travel_date.replace('/', '-')
-                    safe_station = t.route.replace('/', '-').replace('\\', '-')
-                    pdf_name = f"{safe_date}-{safe_station}-机票.pdf"
-                    results.append((pdf_data, pdf_name, [t]))
-            return results
+        # 处理有文本的 PDF
+        for pdf_data, tickets in text_results:
+            for t in tickets:
+                safe_date = t.travel_date.replace('/', '-')
+                safe_station = t.route.replace('/', '-').replace('\\', '-')
+                pdf_name = f"{safe_date}-{safe_station}-机票.pdf"
+                results.append((pdf_data, pdf_name, [t]))
 
-        # 全部是图片型 PDF → HTML 回退
+        # 处理图片型 PDF（使用 HTML 回退）
         if img_pdfs and html_text:
             html_tickets = _parse_ctrip_html(html_text)
-            for i, pdf_data in enumerate(img_pdfs):
-                if i < len(html_tickets):
-                    t = html_tickets[i]
+            # 使用原始索引对应 HTML 中的票据
+            for orig_idx, pdf_data in img_pdfs:
+                if orig_idx < len(html_tickets):
+                    t = html_tickets[orig_idx]
                     safe_date = t.travel_date.replace('/', '-')
                     safe_station = t.route.replace('/', '-').replace('\\', '-')
                     pdf_name = f"{safe_date}-{safe_station}-机票.pdf"
@@ -163,18 +163,40 @@ def _parse_ctrip_html(html_text: str) -> list[Ticket]:
     except Exception:
         decoded = html_text
 
-    pattern = r'订单号[：:](\d+)[，,]\s*(\d{4})年(\d{1,2})月(\d{1,2})日\s*([一-鿿]+-[一-鿿]+)'
-    for m in re.finditer(pattern, decoded):
-        travel_date = f"{m.group(2)}-{m.group(3).zfill(2)}-{m.group(4).zfill(2)}"
-        route = m.group(5)
-        order_id = m.group(1)[-6:]
-        tickets.append(Ticket(
-            travel_date=travel_date,
-            carrier=f'订单{order_id}',
-            route=route,
-            amount=0.0,
-            ticket_type='飞机',
-            vehicle='飞机',
-            item='机票',
-        ))
+    # 主模式：订单号 + 日期 + 路线
+    pattern1 = r'订单号[：:](\d+)[，,]\s*(\d{4})年(\d{1,2})月(\d{1,2})日\s*([一-鿿]+-[一-鿿]+)'
+    matches1 = list(re.finditer(pattern1, decoded))
+
+    # 备用模式：仅日期 + 路线（当订单号格式不同时）
+    pattern2 = r'(\d{4})年(\d{1,2})月(\d{1,2})日\s*([一-鿿]+-[一-鿿]+)'
+    matches2 = list(re.finditer(pattern2, decoded))
+
+    if matches1:
+        for m in matches1:
+            travel_date = f"{m.group(2)}-{m.group(3).zfill(2)}-{m.group(4).zfill(2)}"
+            route = m.group(5)
+            order_id = m.group(1)[-6:]
+            tickets.append(Ticket(
+                travel_date=travel_date,
+                carrier=f'订单{order_id}',
+                route=route,
+                amount=0.0,
+                ticket_type='飞机',
+                vehicle='飞机',
+                item='机票',
+            ))
+    elif matches2:
+        for m in matches2:
+            travel_date = f"{m.group(1)}-{m.group(2).zfill(2)}-{m.group(3).zfill(2)}"
+            route = m.group(4)
+            tickets.append(Ticket(
+                travel_date=travel_date,
+                carrier='航班',
+                route=route,
+                amount=0.0,
+                ticket_type='飞机',
+                vehicle='飞机',
+                item='机票',
+            ))
+
     return tickets
